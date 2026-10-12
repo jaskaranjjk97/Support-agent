@@ -2,7 +2,6 @@ from langchain_core.messages import HumanMessage
 
 from app.nodes.account import account_subagent
 
-
 SAMPLES = [
     "What plan am I on? My user ID is U1001.",
     "Why was order O5002 marked as failed?",
@@ -18,7 +17,7 @@ def main():
         state = {"messages": [HumanMessage(content=msg)], "trace": []}
         result = account_subagent(state)
         print(f"  draft_response: {result['draft_response']}")
-        print(f"  tool_results:")
+        print("  tool_results:")
         for tr in result.get("tool_results", []):
             print(f"    - {tr['tool']}({tr['args']}) → {tr['result']}")
 

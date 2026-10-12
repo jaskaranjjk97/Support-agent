@@ -1,8 +1,8 @@
+from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
-from langchain_core.messages import SystemMessage, HumanMessage
 
 from app.llm import get_llm
-from app.state import SupportState, Intent
+from app.state import Intent, SupportState
 
 
 class IntentResult(BaseModel):
@@ -39,21 +39,26 @@ def classify_intent(state: SupportState) -> dict:
 
     llm = get_llm().with_structured_output(IntentResult)
 
-    result: IntentResult = llm.invoke([
-        SystemMessage(content=SYSTEM_PROMPT),
-        HumanMessage(content=last_user_msg.content),
-    ])
+    result: IntentResult = llm.invoke(
+        [
+            SystemMessage(content=SYSTEM_PROMPT),
+            HumanMessage(content=last_user_msg.content),
+        ]
+    )
 
     return {
         "intent": result.intent,
         "confidence": result.confidence,
-        "trace": state.get("trace", []) + [{
-            "node": "intent_classifier",
-            "status": "ok",
-            "details": {
-                "intent": result.intent,
-                "confidence": result.confidence,
-                "reasoning": result.reasoning,
-            },
-        }],
+        "trace": state.get("trace", [])
+        + [
+            {
+                "node": "intent_classifier",
+                "status": "ok",
+                "details": {
+                    "intent": result.intent,
+                    "confidence": result.confidence,
+                    "reasoning": result.reasoning,
+                },
+            }
+        ],
     }

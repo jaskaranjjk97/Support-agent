@@ -1,17 +1,19 @@
-import json 
+import json
+
 from app import config
 
-def _load_accounts()->dict:
-    with open (config.ACCOUNTS_FILE) as f:
+
+def _load_accounts() -> dict:
+    with open(config.ACCOUNTS_FILE) as f:
         return json.load(f)
 
 
-def _load_orders()->dict:
+def _load_orders() -> dict:
     with open(config.ORDERS_FILE) as f:
         return json.load(f)
 
 
-def get_account_details(user_id: str)->dict:
+def get_account_details(user_id: str) -> dict:
     """Look up a TaskFlow account by user ID.
 
     Args:
@@ -24,9 +26,10 @@ def get_account_details(user_id: str)->dict:
 
     accounts = _load_accounts()
     if user_id not in accounts:
-        return {"error": "not_found","user_id":user_id}
+        return {"error": "not_found", "user_id": user_id}
 
     return accounts[user_id]
+
 
 def get_order_status(order_id: str) -> dict:
     """Look up the status of a TaskFlow order.
@@ -42,6 +45,7 @@ def get_order_status(order_id: str) -> dict:
     if order_id not in orders:
         return {"error": "not_found", "order_id": order_id}
     return orders[order_id]
+
 
 def reset_password(user_id: str) -> dict:
     """Trigger a password reset email for a TaskFlow user.

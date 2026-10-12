@@ -1,23 +1,22 @@
-from  langchain_core.messages import (
+from langchain_core.messages import (
     AIMessage,
-    HumanMessage,
     SystemMessage,
     ToolMessage,
 )
 
 from app.llm import get_llm
 from app.state import SupportState
-from app.tools.registry import ACCOUNT_TOOLS
 from app.tools.account_tool import (
     get_account_details,
     get_order_status,
     reset_password,
 )
+from app.tools.registry import ACCOUNT_TOOLS
 
 TOOL_MAP = {
-    "get_account_details":get_account_details,
-    "get_order_status":get_order_status,
-    "reset_password":reset_password,
+    "get_account_details": get_account_details,
+    "get_order_status": get_order_status,
+    "reset_password": reset_password,
 }
 
 
@@ -44,7 +43,8 @@ Rules:
 
 MAX_ITERATIONS = 5
 
-def account_subagent(state: SupportState)->dict:
+
+def account_subagent(state: SupportState) -> dict:
     """LangGraph node: it handles account related enquiries via tool calling."""
 
     # Binding the langchain tool objects we created in registry with StructureTool.from_function
@@ -56,33 +56,35 @@ def account_subagent(state: SupportState)->dict:
     ]
 
     tool_results = []
-    trace = state.get("trace",[])
+    trace = state.get("trace", [])
 
     for step in range(MAX_ITERATIONS):
         ai_msg: AIMessage = llm.invoke(messages)
         messages.append(ai_msg)
 
         if not ai_msg.tool_calls:
-            #LLM decided its done - final text
-            trace.append({
-                "node":"account_subagent",
-                "status":"ok",
-                "details":{
-                    "tool_calls_made":len(tool_results),
-                    "iterations":step + 1,
-                },
-            })
+            # LLM decided its done - final text
+            trace.append(
+                {
+                    "node": "account_subagent",
+                    "status": "ok",
+                    "details": {
+                        "tool_calls_made": len(tool_results),
+                        "iterations": step + 1,
+                    },
+                }
+            )
 
             return {
-                "draft_response":ai_msg.content,
-                "tool_results":tool_results,
-                "trace":trace,
+                "draft_response": ai_msg.content,
+                "tool_results": tool_results,
+                "trace": trace,
             }
 
-        #Execute each tool call 
+        # Execute each tool call
         for tc in ai_msg.tool_calls:
-            tool_name = tc['name']
-            tool_args = tc['args']
+            tool_name = tc["name"]
+            tool_args = tc["args"]
             fn = TOOL_MAP.get(tool_name)
 
             if fn is None:
@@ -90,34 +92,36 @@ def account_subagent(state: SupportState)->dict:
             else:
                 result = fn(**tool_args)
 
-            tool_results.append({
-                "tool":tool_name,
-                "args":tool_args,
-                "result":result,
-            })
-
-            trace.append({
-                "node": "account_subagent",
-                "status": "tool_call",
-                "details": {"tool": tool_name, "args": tool_args, "result": result},
-            })
-
-            messages.append(
-                ToolMessage(content=str(result), tool_call_id=tc["id"])
+            tool_results.append(
+                {
+                    "tool": tool_name,
+                    "args": tool_args,
+                    "result": result,
+                }
             )
 
+            trace.append(
+                {
+                    "node": "account_subagent",
+                    "status": "tool_call",
+                    "details": {"tool": tool_name, "args": tool_args, "result": result},
+                }
+            )
+
+            messages.append(ToolMessage(content=str(result), tool_call_id=tc["id"]))
+
     # Safety valve — max iterations reached
-    trace.append({
-        "node": "account_subagent",
-        "status": "max_iterations",
-        "details": {"iterations": MAX_ITERATIONS},
-    })
+    trace.append(
+        {
+            "node": "account_subagent",
+            "status": "max_iterations",
+            "details": {"iterations": MAX_ITERATIONS},
+        }
+    )
 
     return {
         "draft_response": "I'm sorry, I couldn't complete that request. "
-                          "Could you rephrase or provide more details?",
+        "Could you rephrase or provide more details?",
         "tool_results": tool_results,
         "trace": trace,
     }
-
-

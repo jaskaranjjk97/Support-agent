@@ -2,7 +2,7 @@ from langchain_core.messages import HumanMessage
 
 from app.nodes.intent import classify_intent
 
-SAMPLES =[
+SAMPLES = [
     "What plan am I on? My email is aarav@acmecorp.com",
     "How do I set up the Slack integration?",
     "This is ridiculous, I've been charged twice and no one responds! I want a human.",
@@ -11,9 +11,10 @@ SAMPLES =[
     "Can you recommend a good pizza place nearby?",
 ]
 
+
 def main():
     for msg in SAMPLES:
-        state = {"messages":[HumanMessage(content=msg)],"trace":[]}
+        state = {"messages": [HumanMessage(content=msg)], "trace": []}
         result = classify_intent(state)
         print(f"\n> {msg}")
         print(f"  intent     = {result['intent']}")

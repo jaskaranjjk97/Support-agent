@@ -17,9 +17,7 @@ def main():
         state = {"messages": [HumanMessage(content=msg)], "trace": []}
         result = product_subagent(state)
         print(f"  answer: {result['draft_response']}")
-        print(
-            f"  sources: {[d['source'] for d in result.get('retrieved_context', [])]}"
-        )
+        print(f"  sources: {[d['source'] for d in result.get('retrieved_context', [])]}")
 
 
 if __name__ == "__main__":

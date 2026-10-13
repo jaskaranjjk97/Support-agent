@@ -54,6 +54,7 @@ def ingest_help_docs(force: bool = False) -> int:
     print(f"Upserted {len(docs)} documents to '{config.PINECONE_INDEX_NAME}'.")
     return len(docs)
 
+
 def retrieve(query: str, k: int = 4) -> list[Document]:
     """Retrieve the top-K most relevant help docs for a query."""
     vectorstore = _get_vectorstore()

@@ -22,9 +22,7 @@ ACCOUNTS_FILE = DATA_DIR / "accounts.json"
 ORDERS_FILE = DATA_DIR / "orders.json"
 
 if not OPENAI_API_KEY:
-    raise RuntimeError(
-        "OPENAI_API_KEY is not set. Copy .env.example to .env and add your key."
-    )
+    raise RuntimeError("OPENAI_API_KEY is not set. Copy .env.example to .env and add your key.")
 
 if not PINECONE_API_KEY:
     raise RuntimeError("PINECONE_API_KEY is not set.")

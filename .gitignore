@@ -45,7 +45,6 @@ htmlcov/
 Thumbs.db
 
 # Project-specific
-.chroma/
 logs/
 *.log
 data/processed/

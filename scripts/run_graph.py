@@ -26,6 +26,7 @@ def run(msg: str, thread_id: str) -> None:
     print(f"  final_response: {result.get('final_response')}")
     print(f"  trace: {[(t['node'], t.get('status')) for t in result.get('trace', [])]}")
 
+
 def main():
     for msg in SAMPLES:
         run(msg, thread_id=str(uuid.uuid4()))

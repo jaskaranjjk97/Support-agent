@@ -7,7 +7,7 @@ from app.state import SupportState
 # ---------------------------------------------------------------------------
 
 EMAIL_RE = re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b")
-#Indian mobile: 10 digits starting with 6-9, optional +91 prefix (with or without separator)
+# Indian mobile: 10 digits starting with 6-9, optional +91 prefix (with or without separator)
 PHONE_RE = re.compile(r"(?<!\d)(?:\+91[\s-]?)?[6-9]\d{9}(?!\d)")
 # 13-19 digit card number with optional spaces or dashes
 CARD_RE = re.compile(r"\b(?:\d[ -]?){13,19}\b")
@@ -185,7 +185,7 @@ def grounding_score(response: str, retrieved_context: list[dict]) -> float:
     return len(response_tokens & context_tokens) / len(response_tokens)
 
 
-HALLUCINATION_THRESHOLD = 0.4
+HALLUCINATION_THRESHOLD = 0.3
 
 
 # -------------------------------------

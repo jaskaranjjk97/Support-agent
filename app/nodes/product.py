@@ -60,7 +60,7 @@ def product_subagent(state: SupportState) -> dict:
         {
             "source": d.metadata.get("source", "unknown"),
             "title": d.metadata.get("title", ""),
-            "snippet": d.page_content[:200] + "...",
+            "snippet": d.page_content[:500] + "...",
         }
         for d in docs
     ]

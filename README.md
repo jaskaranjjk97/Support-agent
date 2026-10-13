@@ -1,4 +1,4 @@
-# TaskFlow Support Agent
+# TaskFlow — Multi-Agent Support Assistant with Guardrails
 
 > A production-ready customer support agent that resolves routine tickets, grounds every answer in retrieved docs, blocks PII from leaving your infrastructure, and escalates high-severity complaints to humans with a full reasoning trace.
 
@@ -399,6 +399,15 @@ Honest about what this demo doesn't do:
 - **In-memory checkpointer** — `MemorySaver` loses state on restart. Production would use `SqliteSaver` or `PostgresSaver`.
 - **No authentication** — the API has no auth layer. Production would add JWT or API-key middleware.
 - **English only** — prompts assume English. Multilingual would need per-language few-shot examples.
+
+---
+
+## About the Author
+
+I build production AI agents and RAG systems for companies that need reliable document Q&A, 
+support automation, or knowledge assistants.
+
+📫 **Available for freelance projects** — [jaskaranjandu4u@gmail.com] | [www.linkedin.com/in/jaskaran-singh-0a65b3181] | [Upwork]
 
 ---
 

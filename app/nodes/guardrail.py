@@ -7,8 +7,8 @@ from app.state import SupportState
 # ---------------------------------------------------------------------------
 
 EMAIL_RE = re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b")
-# Indian mobile: 10 digits starting with 6-9, optional +91 prefix
-PHONE_RE = re.compile(r"\b(?:\+91[\s-]?)?[6-9]\d{9}\b")
+#Indian mobile: 10 digits starting with 6-9, optional +91 prefix (with or without separator)
+PHONE_RE = re.compile(r"(?<!\d)(?:\+91[\s-]?)?[6-9]\d{9}(?!\d)")
 # 13-19 digit card number with optional spaces or dashes
 CARD_RE = re.compile(r"\b(?:\d[ -]?){13,19}\b")
 # Aadhaar: 4 digits, space, 4 digits, space, 4 digits
@@ -211,7 +211,7 @@ def guardrail_node(state: SupportState) -> dict:
     if intent == "product_question" and retrieved:
         score = grounding_score(redacted, retrieved)
         if score < HALLUCINATION_THRESHOLD:
-            flags.append(f"hallucinated response suspected: {score:.2f}")
+            flags.append(f"hallucination_suspect: {score:.2f}")
 
     # 3.Scope check (out_of_scope should mention TaskFlow)
     if intent == "out_of_scope" and "taskflow" not in redacted.lower():

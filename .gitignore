@@ -8,6 +8,10 @@ build/
 dist/
 *.egg-info/
 .eggs/
+*.xlsx
+~$*.xlsx
+*.tmp
+
 
 # Virtual environments
 .venv/

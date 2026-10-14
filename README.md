@@ -4,8 +4,7 @@
 
 > **TL;DR** — Multi-agent support assistant. Routes queries to 4 specialists, retrieves from Pinecone, 
 > runs PII + hallucination + scope guardrails on every response, and escalates complaints to humans. 
-> FastAPI backend + Streamlit UI + Docker Compose. 97% intent accuracy, 100% PII redaction, 1.8s median latency.
-> [Watch the 90-second demo →](your-loom-link)
+> FastAPI backend + Streamlit UI + Docker Compose. 86.7% intent accuracy, 100% PII redaction, 7.8s median latency.
 
 Built with LangGraph, FastAPI, Pinecone, and Docker — with evaluation metrics, guardrails, and human-in-the-loop escalation. Not a demo.
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
@@ -92,22 +91,31 @@ flowchart TD
     style Deflector fill:#f0f0f0
 ```
 
+**Flow:** Every message passes through the intent classifier, which routes to exactly one subagent. Every subagent's output then flows through the guardrail node before reaching the user. `MemorySaver` persists conversation state across turns via a client-supplied `thread_id`.
+
 ## Evaluation Results
 
-I ran 60 test queries across all four intent categories and scored the outputs manually.
+I ran **30 test queries** across all four intent categories and scored the outputs manually.
 
 | Metric | Score | Method |
 |---|---|---|
-| Intent routing accuracy | 58/60 (97%) | 60 labeled queries across 4 intents |
-| PII redaction recall | 30/30 (100%) | 30 queries with embedded emails, phone numbers, IDs |
-| Escalation correctness | 22/25 (88%) | 25 high-severity complaint queries |
-| Out-of-scope deflection | 15/15 (100%) | 15 off-topic queries |
-| Hallucination flag precision | 18/20 (90%) | 20 queries with known ungrounded answers |
-| Median response latency | 1.8s | Measured over 60 requests (GPT-4o-mini) |
+| Intent routing accuracy | 26/30 (86.7%) | 30 labeled queries across 4 intents |
+| PII redaction recall | 5/5 (100%) | 5 queries with embedded emails, names, or phone numbers |
+| Escalation correctness | 5/5 (100%) | 5 complaints expected to escalate |
+| Out-of-scope deflection | 7/7 (100%) | 7 off-topic queries including 1 prompt-injection attempt |
+| Hallucination flag recall | 1/2 (50%) | 2 queries where retrieval was insufficient |
+| Median response latency | 7.8s | Measured over 30 requests (GPT-4o-mini, no streaming) |
 
-**How to reproduce:** `python -m tests.eval_suite` — the test queries and scoring script are in `tests/`.
+Full query set and scored results: [`tests/evals/results.csv`](./tests/evals/results.csv).
 
-**Flow:** Every message passes through the intent classifier, which routes to exactly one subagent. Every subagent's output then flows through the guardrail node before reaching the user. `MemorySaver` persists conversation state across turns via a client-supplied `thread_id`.
+**What the eval revealed:**
+
+- **Four intent misclassifications (rows 11, 12, 13, 22).** Queries about payment methods, upgrade paths, app crashes, and cancellations were misrouted — mostly to `account_enquiry`. The classifier's boundaries blur on billing-adjacent and troubleshooting queries. Fix: add few-shot examples distinguishing "how do I pay" (product) from "what plan am I on" (account), and a dedicated troubleshooting intent for crash/error reports.
+- **One false-positive escalation (row 12).** Because "My app keeps crashing on login" was misclassified as a complaint, the complaint subagent created a ticket for what should have been a self-serve troubleshooting answer. A cross-check before escalation — "is this really a complaint, or a product question in disguise?" — would prevent the noise.
+- **Hallucination guardrail caught 1 of 2 ungrounded queries.** The prompt-injection attempt (#30) was deflected by the intent classifier but not flagged as a security event by the guardrail. The token-overlap heuristic doesn't catch adversarial injections — an LLM-as-judge would.
+- **Latency is 6–13s per response.** The system makes 2+ sequential LLM calls with no streaming. Out-of-scope queries (single classifier call) hit ~6.4s; RAG queries (retrieval + LLM) hit up to 13.3s. Streaming token delivery would drop perceived latency to ~1–2s for the first token.
+
+**How to reproduce:** `python tests/evals/run_eval.py` — the test queries and scoring script are in `tests/evals/`.
 
 ---
 
@@ -407,8 +415,7 @@ Honest about what this demo doesn't do:
 I build production AI agents and RAG systems for companies that need reliable document Q&A, 
 support automation, or knowledge assistants.
 
-📫 **Available for freelance projects** — [jaskaranjandu4u@gmail.com] | [www.linkedin.com/in/jaskaran-singh-0a65b3181] | [Upwork]
-
+📫 **Available for freelance projects** — [jaskaranjandu4u@gmail.com](mailto:jaskaranjandu4u@gmail.com) · [LinkedIn](https://www.linkedin.com/in/jaskaran-singh-0a65b3181)
 ---
 
 ## License
